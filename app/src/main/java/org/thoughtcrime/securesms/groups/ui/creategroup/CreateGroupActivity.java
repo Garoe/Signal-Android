@@ -92,7 +92,7 @@ public class CreateGroupActivity extends ContactSelectionActivity {
   }
 
   @Override
-  public boolean onBeforeContactSelected(Optional<RecipientId> recipientId, String number) {
+  public boolean onBeforeContactSelected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {
     if (contactsFragment.hasQueryFilter()) {
       getToolbar().clear();
     }
@@ -103,7 +103,7 @@ public class CreateGroupActivity extends ContactSelectionActivity {
   }
 
   @Override
-  public void onContactDeselected(Optional<RecipientId> recipientId, String number) {
+  public void onContactDeselected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {
     if (contactsFragment.hasQueryFilter()) {
       getToolbar().clear();
     }
