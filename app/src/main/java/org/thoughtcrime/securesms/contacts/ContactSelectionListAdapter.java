@@ -88,6 +88,14 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
                       @Nullable final ItemClickListener clickListener)
     {
       super(itemView);
+      itemView.setOnLongClickListener(v -> {
+        if (clickListener != null) {
+          return clickListener.onItemLongClick(getView());
+        } else {
+          return false;
+        }
+      });
+
       itemView.setOnClickListener(v -> {
         if (clickListener != null) clickListener.onItemClick(getView());
       });
@@ -143,7 +151,8 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
                                      @NonNull  GlideRequests glideRequests,
                                      @Nullable Cursor cursor,
                                      @Nullable ItemClickListener clickListener,
-                                     boolean multiSelect)
+                                     boolean multiSelect,
+                                     Set<SelectedContact> preSelectedContacts)
   {
     super(context, cursor);
     this.li            = LayoutInflater.from(context);
@@ -151,6 +160,11 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     this.drawables     = context.obtainStyledAttributes(STYLE_ATTRIBUTES);
     this.multiSelect   = multiSelect;
     this.clickListener = clickListener;
+
+    if(preSelectedContacts != null) {
+      selectedContacts.addAll(preSelectedContacts);
+    }
+
   }
 
   @Override
@@ -276,5 +290,7 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
 
   public interface ItemClickListener {
     void onItemClick(ContactSelectionListItem item);
+    boolean onItemLongClick(ContactSelectionListItem item);
   }
+
 }
