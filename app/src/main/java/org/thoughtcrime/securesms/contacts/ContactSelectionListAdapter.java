@@ -67,7 +67,7 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
 
   public static final int PAYLOAD_SELECTION_CHANGE = 1;
 
-  private final boolean           multiSelect;
+  private boolean           multiSelect;
   private final LayoutInflater    layoutInflater;
   private final TypedArray        drawables;
   private final ItemClickListener clickListener;
@@ -112,6 +112,14 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
                       @Nullable final ItemClickListener clickListener)
     {
       super(itemView);
+      itemView.setOnLongClickListener(v -> {
+        if (clickListener != null) {
+          return clickListener.onItemLongClick(getView());
+        } else {
+          return false;
+        }
+      });
+
       itemView.setOnClickListener(v -> {
         if (clickListener != null) clickListener.onItemClick(getView());
       });
@@ -138,6 +146,10 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     @Override
     public void setEnabled(boolean enabled) {
       getView().setEnabled(enabled);
+    }
+
+    void setMultiSelect(boolean multiSelect){
+      getView().setMultiSelect(multiSelect);
     }
   }
 
@@ -176,7 +188,8 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
                                      @Nullable Cursor cursor,
                                      @Nullable ItemClickListener clickListener,
                                      boolean multiSelect,
-                                     @NonNull Set<RecipientId> currentContacts)
+                                     @NonNull Set<RecipientId> currentContacts,
+                                     SelectedContactSet preSelectedContacts)
   {
     super(context, cursor);
     this.layoutInflater = LayoutInflater.from(context);
@@ -185,6 +198,10 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     this.multiSelect     = multiSelect;
     this.clickListener   = clickListener;
     this.currentContacts = currentContacts;
+
+    if(preSelectedContacts != null) {
+      selectedContacts.addAll(preSelectedContacts);
+    }
   }
 
   @Override
@@ -314,6 +331,11 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     }
   }
 
+  public void setMultiSelect(boolean multiSelect){
+    this.multiSelect = multiSelect;
+    notifyDataSetChanged();
+  }
+
   private @NonNull String getHeaderString(int position) {
     int contactType = getContactType(position);
 
@@ -348,5 +370,7 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
 
   public interface ItemClickListener {
     void onItemClick(ContactSelectionListItem item);
+    boolean onItemLongClick(ContactSelectionListItem item);
   }
+
 }

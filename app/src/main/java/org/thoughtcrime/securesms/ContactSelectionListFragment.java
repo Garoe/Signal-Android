@@ -21,6 +21,7 @@ import android.Manifest;
 import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -62,6 +63,7 @@ import org.thoughtcrime.securesms.contacts.ContactSelectionListItem;
 import org.thoughtcrime.securesms.contacts.ContactsCursorLoader;
 import org.thoughtcrime.securesms.contacts.ContactsCursorLoader.DisplayMode;
 import org.thoughtcrime.securesms.contacts.SelectedContact;
+import org.thoughtcrime.securesms.contacts.SelectedContactSet;
 import org.thoughtcrime.securesms.contacts.sync.DirectoryHelper;
 import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.GlideApp;
@@ -110,6 +112,11 @@ public final class ContactSelectionListFragment extends LoggingFragment
   public static final String CURRENT_SELECTION = "current_selection";
 
   private ConstraintLayout            constraintLayout;
+
+  public static final String EXTRA_PRESELECTED_RECIPIENT_ID = "preselected_recipient_id";
+  public static final String EXTRA_PRESELECTED_NUMBER = "preselected_number";
+  public static final String EXTRA_PRESELECTED_USERNAME = "preselected_username";
+
   private TextView                    emptyText;
   private OnContactSelectedListener   onContactSelectedListener;
   private SwipeRefreshLayout          swipeRefresh;
@@ -257,6 +264,30 @@ public final class ContactSelectionListFragment extends LoggingFragment
     return requireActivity().getIntent().getBooleanExtra(MULTI_SELECT, false);
   }
 
+  private SelectedContactSet getPreSelectedContacts(){
+    SelectedContactSet preSelectedContacts = new SelectedContactSet();
+
+    if (getActivity() != null) {
+      Intent intent = getActivity().getIntent();
+
+      RecipientId recipientId = intent.getParcelableExtra(EXTRA_PRESELECTED_RECIPIENT_ID);
+      String number = intent.getStringExtra(EXTRA_PRESELECTED_NUMBER);
+      String username = intent.getStringExtra(EXTRA_PRESELECTED_USERNAME);
+
+      SelectedContact preSelectedContact = null;
+      if (number != null) {
+        preSelectedContact = SelectedContact.forPhone(recipientId, number);
+      }
+      if (username != null) {
+        preSelectedContact = SelectedContact.forUsername(recipientId, username);
+      }
+      if (preSelectedContact != null) {
+        preSelectedContacts.add(preSelectedContact);
+      }
+    }
+    return preSelectedContacts;
+  }
+
   private void initializeCursor() {
     glideRequests = GlideApp.with(this);
 
@@ -265,8 +296,8 @@ public final class ContactSelectionListFragment extends LoggingFragment
                                                                 null,
                                                                 new ListClickListener(),
                                                                 isMulti(),
-                                                                currentSelection);
-
+                                                                currentSelection,
+                                                                getPreSelectedContacts());
     RecyclerViewConcatenateAdapterStickyHeader concatenateAdapter = new RecyclerViewConcatenateAdapterStickyHeader();
 
     if (listCallback != null) {
@@ -359,6 +390,10 @@ public final class ContactSelectionListFragment extends LoggingFragment
     }
   }
 
+  public void onMultiSelectChanged(){
+    cursorRecyclerViewAdapter.setMultiSelect(isMulti());
+  }
+
   @Override
   public @NonNull Loader<Cursor> onCreateLoader(int id, Bundle args) {
     FragmentActivity activity = requireActivity();
@@ -445,8 +480,8 @@ public final class ContactSelectionListFragment extends LoggingFragment
   }
 
   private class ListClickListener implements ContactSelectionListAdapter.ItemClickListener {
-    @Override
-    public void onItemClick(ContactSelectionListItem contact) {
+
+    private void shortOrLongClickHandler(ContactSelectionListItem contact, boolean isLongClick){
       SelectedContact selectedContact = contact.isUsernameType() ? SelectedContact.forUsername(contact.getRecipientId().orNull(), contact.getNumber())
                                                                  : SelectedContact.forPhone(contact.getRecipientId().orNull(), contact.getNumber());
 
@@ -474,7 +509,7 @@ public final class ContactSelectionListFragment extends LoggingFragment
               SelectedContact selected = SelectedContact.forUsername(recipient.getId(), contact.getNumber());
 
               if (onContactSelectedListener != null) {
-                if (onContactSelectedListener.onBeforeContactSelected(Optional.of(recipient.getId()), null)) {
+                if (onContactSelectedListener.onBeforeContactSelected(Optional.of(recipient.getId()), null, isLongClick)) {
                   markContactSelected(selected);
                   cursorRecyclerViewAdapter.notifyItemChanged(recyclerView.getChildAdapterPosition(contact), ContactSelectionListAdapter.PAYLOAD_SELECTION_CHANGE);
                 }
@@ -492,7 +527,7 @@ public final class ContactSelectionListFragment extends LoggingFragment
           });
         } else {
           if (onContactSelectedListener != null) {
-            if (onContactSelectedListener.onBeforeContactSelected(contact.getRecipientId(), contact.getNumber())) {
+            if (onContactSelectedListener.onBeforeContactSelected(contact.getRecipientId(), contact.getNumber(), isLongClick)) {
               markContactSelected(selectedContact);
               cursorRecyclerViewAdapter.notifyItemChanged(recyclerView.getChildAdapterPosition(contact), ContactSelectionListAdapter.PAYLOAD_SELECTION_CHANGE);
             }
@@ -506,9 +541,20 @@ public final class ContactSelectionListFragment extends LoggingFragment
         cursorRecyclerViewAdapter.notifyItemChanged(recyclerView.getChildAdapterPosition(contact), ContactSelectionListAdapter.PAYLOAD_SELECTION_CHANGE);
 
         if (onContactSelectedListener != null) {
-          onContactSelectedListener.onContactDeselected(contact.getRecipientId(), contact.getNumber());
+          onContactSelectedListener.onContactDeselected(contact.getRecipientId(), contact.getNumber(), isLongClick);
         }
       }}
+
+    @Override
+    public void onItemClick(ContactSelectionListItem contact) {
+      shortOrLongClickHandler(contact, false);
+    }
+
+    @Override
+    public boolean onItemLongClick(ContactSelectionListItem contact) {
+      shortOrLongClickHandler(contact, true);
+      return true;
+    }
   }
 
   private boolean selectionLimitReached() {
@@ -563,7 +609,7 @@ public final class ContactSelectionListFragment extends LoggingFragment
       markContactUnselected(selectedContact);
 
       if (onContactSelectedListener != null) {
-        onContactSelectedListener.onContactDeselected(Optional.of(recipient.getId()), recipient.getE164().orNull());
+        onContactSelectedListener.onContactDeselected(Optional.of(recipient.getId()), recipient.getE164().orNull(), false);
       }
     });
 
@@ -605,6 +651,7 @@ public final class ContactSelectionListFragment extends LoggingFragment
         }
       });
     }
+
   }
 
   private void setChipGroupVisibility(int visibility) {
@@ -631,8 +678,8 @@ public final class ContactSelectionListFragment extends LoggingFragment
 
   public interface OnContactSelectedListener {
     /** @return True if the contact is allowed to be selected, otherwise false. */
-    boolean onBeforeContactSelected(Optional<RecipientId> recipientId, String number);
-    void onContactDeselected(Optional<RecipientId> recipientId, String number);
+    boolean onBeforeContactSelected(Optional<RecipientId> recipientId, String number, boolean isLongClick);
+    void onContactDeselected(Optional<RecipientId> recipientId, String number, boolean isLongClick);
   }
 
   public interface ListCallback {

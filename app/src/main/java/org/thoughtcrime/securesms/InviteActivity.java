@@ -120,13 +120,13 @@ public class InviteActivity extends PassphraseRequiredActivity implements Contac
   }
 
   @Override
-  public boolean onBeforeContactSelected(Optional<RecipientId> recipientId, String number) {
+  public boolean onBeforeContactSelected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {
     updateSmsButtonText(contactsFragment.getSelectedContacts().size() + 1);
     return true;
   }
 
   @Override
-  public void onContactDeselected(Optional<RecipientId> recipientId, String number) {
+  public void onContactDeselected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {
     updateSmsButtonText(contactsFragment.getSelectedContacts().size());
   }
 
