@@ -116,10 +116,10 @@ public abstract class ContactSelectionActivity extends PassphraseRequiredActionB
   }
 
   @Override
-  public void onContactSelected(Optional<RecipientId> recipientId, String number) {}
+  public void onContactSelected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {}
 
   @Override
-  public void onContactDeselected(Optional<RecipientId> recipientId, String number) {}
+  public void onContactDeselected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {}
 
   private static class RefreshDirectoryTask extends AsyncTask<Context, Void, Void> {
 

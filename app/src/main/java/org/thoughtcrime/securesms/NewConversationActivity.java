@@ -67,7 +67,7 @@ public class NewConversationActivity extends ContactSelectionActivity
   }
 
   @Override
-  public void onContactSelected(Optional<RecipientId> recipientId, String number) {
+  public void onContactSelected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {
     Recipient recipient;
     if (recipientId.isPresent()) {
       recipient = Recipient.resolved(recipientId.get());

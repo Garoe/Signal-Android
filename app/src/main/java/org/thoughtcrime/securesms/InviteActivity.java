@@ -122,12 +122,12 @@ public class InviteActivity extends PassphraseRequiredActionBarActivity implemen
   }
 
   @Override
-  public void onContactSelected(Optional<RecipientId> recipientId, String number) {
+  public void onContactSelected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {
     updateSmsButtonText();
   }
 
   @Override
-  public void onContactDeselected(Optional<RecipientId> recipientId, String number) {
+  public void onContactDeselected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {
     updateSmsButtonText();
   }
 
