@@ -64,7 +64,7 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
   private final static int STYLE_ATTRIBUTES[] = new int[]{R.attr.contact_selection_push_user,
                                                           R.attr.contact_selection_lay_user};
 
-  private final boolean           multiSelect;
+  private boolean                 multiSelect;
   private final LayoutInflater    li;
   private final TypedArray        drawables;
   private final ItemClickListener clickListener;
@@ -117,6 +117,10 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     @Override
     public void setChecked(boolean checked) {
       getView().setChecked(checked);
+    }
+
+    void setMultiSelect(boolean multiSelect){
+      getView().setMultiSelect(multiSelect);
     }
   }
 
@@ -253,6 +257,16 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
       return spannable;
     } else {
       return headerString;
+    }
+  }
+
+  public void setMultiSelect(boolean multiSelect, RecyclerView recyclerView){
+    this.multiSelect = multiSelect;
+    for (int i = 0; i < recyclerView.getChildCount(); i++) {
+      RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(i);
+      if(viewHolder != null && getItemViewType(i) == VIEW_TYPE_CONTACT){
+      ((ContactSelectionListAdapter.ContactViewHolder) viewHolder).setMultiSelect(this.multiSelect);
+      }
     }
   }
 

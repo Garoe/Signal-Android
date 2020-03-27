@@ -286,6 +286,10 @@ public final class ContactSelectionListFragment extends    Fragment
     }
   }
 
+  public void onMultiSelectChanged(){
+    cursorRecyclerViewAdapter.setMultiSelect(isMulti(), recyclerView);
+  }
+
   @Override
   public @NonNull Loader<Cursor> onCreateLoader(int id, Bundle args) {
     return new ContactsCursorLoader(getActivity(),
