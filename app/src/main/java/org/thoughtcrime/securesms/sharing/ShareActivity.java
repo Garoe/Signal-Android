@@ -56,6 +56,7 @@ import org.thoughtcrime.securesms.contacts.SelectedContact;
 import org.thoughtcrime.securesms.contacts.sync.DirectoryHelper;
 import org.thoughtcrime.securesms.conversation.ConversationActivity;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.database.GroupDatabase;
 import org.thoughtcrime.securesms.database.IdentityDatabase;
 import org.thoughtcrime.securesms.database.RecipientDatabase;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
@@ -799,7 +800,7 @@ public class ShareActivity extends PassphraseRequiredActionBarActivity
     for(Recipient recipientToCheck : recipientList) {
       if (recipientToCheck.isGroup()) {
         recipients.addAll(DatabaseFactory.getGroupDatabase(ShareActivity.this)
-          .getGroupMembers(recipientToCheck.requireGroupId(), false));
+          .getGroupMembers(recipientToCheck.requireGroupId(), GroupDatabase.MemberSet.FULL_MEMBERS_EXCLUDING_SELF));
       } else {
         recipients.add(recipientToCheck);
       }
