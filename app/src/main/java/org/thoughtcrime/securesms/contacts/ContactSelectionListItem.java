@@ -123,10 +123,15 @@ public class ContactSelectionListItem extends LinearLayout implements RecipientF
     }
   }
 
+
   @Override
   public void setEnabled(boolean enabled) {
     super.setEnabled(enabled);
     this.checkBox.setEnabled(enabled);
+  }
+
+  public boolean isChecked(){
+    return checkBox.isChecked();
   }
 
   public void setMultiSelect(boolean multiSelect){
