@@ -148,9 +148,6 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
       getView().setEnabled(enabled);
     }
 
-    void setMultiSelect(boolean multiSelect){
-      getView().setMultiSelect(multiSelect);
-    }
   }
 
   public static class DividerViewHolder extends ViewHolder {
@@ -331,8 +328,57 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     }
   }
 
-  public void setMultiSelect(boolean multiSelect){
+  public void setMultiSelect(boolean multiSelect) {
     this.multiSelect = multiSelect;
+    notifyDataSetChanged();
+  }
+
+  public void selectAll() {
+    if (!multiSelect) {
+      Log.w(TAG, "[selectAll] Multi share is false!");
+      return;
+    }
+
+    Cursor cursor = getCursor();
+    if (cursor == null) {
+      Log.w(TAG, "[selectAll] Cursor is null!");
+      return;
+    }
+
+    selectedContacts.clear();
+
+    cursor.moveToFirst();
+    while (!cursor.isAfterLast()) {
+      if (getItemViewType(cursor) == VIEW_TYPE_CONTACT) {
+        selectedContacts.add(getSelectedContactFromCursor(cursor));
+        notifyItemChanged(cursor.getPosition());
+      }
+      cursor.moveToNext();
+    }
+  }
+
+  private SelectedContact getSelectedContactFromCursor(Cursor cursor) {
+    String rawId = cursor.getString(cursor.getColumnIndexOrThrow(ContactRepository.ID_COLUMN));
+    RecipientId id = rawId != null ? RecipientId.from(rawId) : null;
+    String number = cursor.getString(cursor.getColumnIndexOrThrow(ContactRepository.NUMBER_COLUMN));
+    int numberType = cursor.getInt(cursor.getColumnIndexOrThrow(ContactRepository.NUMBER_TYPE_COLUMN));
+
+    SelectedContact selectedContact;
+    if (numberType == ContactRepository.NEW_USERNAME_TYPE) {
+      selectedContact = SelectedContact.forUsername(id, number);
+    } else {
+      selectedContact = SelectedContact.forPhone(id, number);
+    }
+    return selectedContact;
+  }
+
+  public void unselectAll(){
+    if(!multiSelect){
+      Log.w(TAG, "[selectAll] Multi share is false!");
+      return;
+    }
+
+    selectedContacts.clear();
     notifyDataSetChanged();
   }
 

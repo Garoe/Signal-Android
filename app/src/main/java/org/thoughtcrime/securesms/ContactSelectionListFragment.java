@@ -34,6 +34,7 @@ import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -132,6 +133,7 @@ public final class ContactSelectionListFragment extends LoggingFragment
   private ChipGroup                   chipGroup;
   private HorizontalScrollView        chipGroupScrollContainer;
   private WarningTextView             groupLimit;
+  private ToggleButton selectAllButton;
 
   @Nullable private FixedViewsAdapter headerAdapter;
   @Nullable private FixedViewsAdapter footerAdapter;
@@ -207,7 +209,7 @@ public final class ContactSelectionListFragment extends LoggingFragment
     chipGroupScrollContainer = view.findViewById(R.id.chipGroupScrollContainer);
     groupLimit               = view.findViewById(R.id.group_limit);
     constraintLayout         = view.findViewById(R.id.container);
-
+    selectAllButton = view.findViewById(R.id.select_all_button);
     recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     recyclerView.setItemAnimator(new DefaultItemAnimator() {
       @Override
@@ -227,6 +229,20 @@ public final class ContactSelectionListFragment extends LoggingFragment
     currentSelection = getCurrentSelection();
 
     updateGroupLimit(getChipCount());
+
+    selectAllButton.setTextOn("Unselect All");
+    selectAllButton.setTextOff("Select All");
+    selectAllButton.setChecked(false);
+
+    selectAllButton.setOnClickListener(v -> {
+      if(selectAllButton.isChecked()){
+        cursorRecyclerViewAdapter.selectAll();
+      } else {
+        cursorRecyclerViewAdapter.unselectAll();
+        getActivity().getIntent().removeExtra(SELECTION_LIMITS);
+        onMultiSelectChanged();
+      }
+    });
 
     return view;
   }
@@ -400,6 +416,13 @@ public final class ContactSelectionListFragment extends LoggingFragment
     updateIsMulti(requireActivity().getIntent());
 
     cursorRecyclerViewAdapter.setMultiSelect(isMulti);
+
+    if(isMulti()){
+      selectAllButton.setChecked(false);
+      selectAllButton.setVisibility(View.VISIBLE);
+    } else {
+      selectAllButton.setVisibility(View.INVISIBLE);
+    }
   }
 
   @Override
@@ -438,6 +461,10 @@ public final class ContactSelectionListFragment extends LoggingFragment
     } else {
       fastScroller.setRecyclerView(null);
       fastScroller.setVisibility(View.GONE);
+    }
+
+    if(isMulti()){
+      selectAllButton.setVisibility(View.VISIBLE);
     }
   }
 
@@ -487,6 +514,7 @@ public final class ContactSelectionListFragment extends LoggingFragment
         if (result) {
           showContactsLayout.setVisibility(View.GONE);
           swipeRefresh.setVisibility(View.VISIBLE);
+          selectAllButton.setVisibility(View.VISIBLE);
           reset();
         } else {
           Toast.makeText(getContext(), R.string.ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection, Toast.LENGTH_LONG).show();
