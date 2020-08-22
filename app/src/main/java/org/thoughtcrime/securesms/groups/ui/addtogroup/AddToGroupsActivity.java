@@ -114,7 +114,7 @@ public final class AddToGroupsActivity extends ContactSelectionActivity {
   }
 
   @Override
-  public boolean onContactSelected(Optional<RecipientId> recipientId, String number) {
+  public boolean onContactSelected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {
     if (contactsFragment.isMulti()) {
       throw new UnsupportedOperationException("Not yet built to handle multi-select.");
 //      if (contactsFragment.hasQueryFilter()) {
@@ -134,7 +134,7 @@ public final class AddToGroupsActivity extends ContactSelectionActivity {
   }
 
   @Override
-  public void onContactDeselected(Optional<RecipientId> recipientId, String number) {
+  public void onContactDeselected(Optional<RecipientId> recipientId, String number, boolean isLongClick) {
     if (contactsFragment.hasQueryFilter()) {
       getToolbar().clear();
     }
