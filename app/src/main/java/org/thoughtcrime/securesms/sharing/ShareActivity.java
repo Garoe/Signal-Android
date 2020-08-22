@@ -531,7 +531,7 @@ public class ShareActivity extends PassphraseRequiredActivity
   }
 
   private void initializeMetaDataForSend(){
-    textExtra = getIntent().getStringExtra(Intent.EXTRA_TEXT);
+    textExtra = getIntent().getCharSequenceExtra(Intent.EXTRA_TEXT).toString();
 
     Pair<List<Long>, List<Recipient>> threadIdAndRecipient = getThreadIdAndRecipient(contactsFragment.getSelectedContacts());
     threadIdList = threadIdAndRecipient.first();
