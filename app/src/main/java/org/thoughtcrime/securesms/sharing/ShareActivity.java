@@ -50,6 +50,7 @@ import org.thoughtcrime.securesms.components.SearchToolbar;
 import org.thoughtcrime.securesms.contacts.ContactsCursorLoader.DisplayMode;
 import org.thoughtcrime.securesms.conversation.ConversationIntents;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.groups.SelectionLimits;
 import org.thoughtcrime.securesms.mediasend.Media;
 import org.thoughtcrime.securesms.mediasend.MediaSendActivity;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -226,7 +227,7 @@ public class ShareActivity extends PassphraseRequiredActivity
 
     getIntent().putExtra(ContactSelectionListFragment.REFRESHABLE, false);
     getIntent().putExtra(ContactSelectionListFragment.RECENTS, true);
-    getIntent().putExtra(ContactSelectionListFragment.SELECTION_LIMITS, FeatureFlags.shareSelectionLimit());
+    getIntent().putExtra(ContactSelectionListFragment.SELECTION_LIMITS, SelectionLimits.NO_LIMITS);
     getIntent().putExtra(ContactSelectionListFragment.HIDE_COUNT, true);
     getIntent().putExtra(ContactSelectionListFragment.DISPLAY_CHIPS, false);
     getIntent().putExtra(ContactSelectionListFragment.CAN_SELECT_SELF, true);
@@ -312,7 +313,7 @@ public class ShareActivity extends PassphraseRequiredActivity
             return;
           }
 
-          if (TextSecurePreferences.isSmsEnabled(this) && viewModel.isExternalShare() && (displayMode & DisplayMode.FLAG_SMS) == 0) {
+          if (TextSecurePreferences.isSmsEnabled(this) && (displayMode & DisplayMode.FLAG_SMS) == 0) {
             getIntent().putExtra(ContactSelectionListFragment.DISPLAY_MODE, displayMode | DisplayMode.FLAG_SMS);
             contactsFragment.setQueryFilter(null);
           }

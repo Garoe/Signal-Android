@@ -127,6 +127,8 @@ public class ShareViewModel extends ViewModel {
   }
 
   private @NonNull SmsShareRestriction updateShareRestriction(@NonNull Set<ShareContact> shareContacts) {
+    return SmsShareRestriction.NO_RESTRICTIONS;
+    /*
     if (shareContacts.isEmpty()) {
       return SmsShareRestriction.NO_RESTRICTIONS;
     } else if (shareContacts.size() == 1) {
@@ -140,7 +142,7 @@ public class ShareViewModel extends ViewModel {
       }
     } else {
       return SmsShareRestriction.DISALLOW_SMS_CONTACTS;
-    }
+    }*/
   }
 
   public static class Factory extends ViewModelProvider.NewInstanceFactory {
