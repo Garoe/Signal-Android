@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -97,6 +98,7 @@ public class ShareActivity extends PassphraseRequiredActivity
   private SearchToolbar                searchToolbar;
   private ImageView                    searchAction;
   private View                         shareConfirm;
+  private ToggleButton                 selectAllButton;
   private ShareSelectionAdapter        adapter;
   private boolean                      disallowMultiShare;
 
@@ -245,6 +247,7 @@ public class ShareActivity extends PassphraseRequiredActivity
     searchToolbar    = findViewById(R.id.search_toolbar);
     searchAction     = findViewById(R.id.search_action);
     shareConfirm     = findViewById(R.id.share_confirm);
+    selectAllButton  = findViewById(R.id.select_all_button);
     shareContainer   = findViewById(R.id.container);
     contactsFragment = new ContactSelectionListFragment();
     adapter          = new ShareSelectionAdapter();
@@ -262,6 +265,26 @@ public class ShareActivity extends PassphraseRequiredActivity
       if (shareContacts.isEmpty())        throw new AssertionError();
       else if (shareContacts.size() == 1) onConfirmSingleDestination(shareContacts.iterator().next());
       else                                onConfirmMultipleDestinations(shareContacts);
+    });
+
+    selectAllButton.setTextOn("Unselect All");
+    selectAllButton.setTextOff("Select All");
+    selectAllButton.setChecked(false);
+
+    selectAllButton.setOnClickListener(v -> {
+      if(selectAllButton.isChecked()){
+        contactsFragment.selectAll();
+        viewModel.addContactList(contactsFragment.getSelectedContacts());
+
+        shareConfirm.setEnabled(true);
+        shareConfirm.setAlpha(1f);
+      } else {
+        contactsFragment.reset();
+        viewModel.removeAllContacts();
+
+        shareConfirm.setEnabled(false);
+        shareConfirm.setAlpha(0.5f);
+      }
     });
 
     viewModel.getSelectedContactModels().observe(this, models -> {

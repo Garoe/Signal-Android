@@ -377,6 +377,10 @@ public final class ContactSelectionListFragment extends LoggingFragment
     swipeRefresh.setRefreshing(refreshing);
   }
 
+  public void selectAll(){
+    cursorRecyclerViewAdapter.selectAll();
+  }
+
   public void reset() {
     cursorRecyclerViewAdapter.clearSelectedContacts();
 
