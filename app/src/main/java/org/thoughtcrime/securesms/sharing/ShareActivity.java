@@ -64,6 +64,7 @@ import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.concurrent.SimpleTask;
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog;
 import org.whispersystems.libsignal.util.guava.Optional;
+import org.thoughtcrime.securesms.groups.SelectionLimits;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -228,7 +229,7 @@ public class ShareActivity extends PassphraseRequiredActivity
 
     getIntent().putExtra(ContactSelectionListFragment.REFRESHABLE, false);
     getIntent().putExtra(ContactSelectionListFragment.RECENTS, true);
-    getIntent().putExtra(ContactSelectionListFragment.SELECTION_LIMITS, FeatureFlags.shareSelectionLimit());
+    getIntent().putExtra(ContactSelectionListFragment.SELECTION_LIMITS, SelectionLimits.NO_LIMITS);
     getIntent().putExtra(ContactSelectionListFragment.HIDE_COUNT, true);
     getIntent().putExtra(ContactSelectionListFragment.DISPLAY_CHIPS, false);
     getIntent().putExtra(ContactSelectionListFragment.CAN_SELECT_SELF, true);
