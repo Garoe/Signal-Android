@@ -42,6 +42,10 @@ public final class SelectedContact {
     }
   }
 
+  public String getNumber(){
+    return number;
+  }
+
   /**
    * Returns true when non-null recipient ids match, and false if not.
    * <p>
