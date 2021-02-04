@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.annimon.stream.Stream;
 
 import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.contacts.SelectedContact;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.providers.BlobProvider;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -154,5 +155,22 @@ public class ShareViewModel extends ViewModel {
     NO_RESTRICTIONS,
     DISALLOW_SMS_CONTACTS,
     DISALLOW_MULTI_SHARE
+  }
+
+
+  public void addContactList(@NonNull List<SelectedContact> contactList){
+    for (SelectedContact selectedContact: contactList) {
+      onContactSelected(new ShareContact(Optional.of(selectedContact.getOrCreateRecipientId(this.context)),
+              selectedContact.getNumber()));
+    }
+  }
+
+  public void removeAllContacts(){
+    Set<ShareContact> contacts = selectedContacts.getValue();
+    if (contacts != null) {
+      for (ShareContact selectedContact : contacts) {
+        onContactDeselected(selectedContact);
+      }
+    }
   }
 }
